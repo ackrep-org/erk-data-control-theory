@@ -363,6 +363,26 @@ class Test_02_math(unittest.TestCase):
         print(res.new_statements)
         self.assertTrue(len(res.new_statements) >= 7)
 
+    def test_d01__sp_to_irk_conversion(self):
+        I4000 = p.create_item(R1__has_label="a", R4__is_instance_of=p.I35["real number"])
+        I4001 = p.create_item(R1__has_label="b", R4__is_instance_of=p.I35["real number"])
+        I4002 = p.create_item(R1__has_label="c", R4__is_instance_of=p.I35["real number"])
+
+        a, b, c = ma.items_to_symbols(I4000, I4001, I4002)
+        formula1 = a + b*(a + c)
+
+        res1 = ma.convert_sympy_to_irk(formula1)
+        self.assertEqual(res1.R4__is_instance_of, p.I12["mathematical object"])
+        self.assertEqual(res1.R35__is_applied_mapping_of, p.I55["add"])
+
+        # note that sympy changes the order (w.r.t. how formula1 is written above)
+        # formula1.args -> (s1_b*(s0_a + s2_c), s0_a)
+        self.assertEqual(res1.R36__has_argument_tuple.R39__has_element[1], I4000["a"])
+
+        # now use short versions of R36__has_argument_tuple and R39__has_element
+        self.assertEqual(res1.R36.R39[0].R35__is_applied_mapping_of, p.I56["mul"])
+        self.assertEqual(res1.R36.R39[0].R36.R39[0], I4001["b"])
+
 
 class Test_02_control_theory(unittest.TestCase):
     def setUp(self):

@@ -1727,6 +1727,51 @@ P.set_relation(R5939["has column number"], 5)
 
 failed_multiplication = I5177["matmul"](A,P)
 
+
+sp_to_irk_map = p.aux.OneToOneMapping(
+    a_dict={
+        sp.Add: p.I55["add"],
+        sp.Mul: p.I56["mul"],
+    }
+)
+
+
+class TreeTraverser:
+    def __init__(self, apply_func, get_args_func):
+        self.apply_func = apply_func
+        self.get_args_func = get_args_func
+
+    def run(self, node):
+        args = [self.run(arg) for arg in self.get_args_func(node)]
+        return self.apply_func(node, args)
+
+
+def convert_sympy_to_irk(sp_expr):
+    def _get_irk_for_sp(sp_expr, args):
+        if isinstance(sp_expr, IRKSymbol):
+            uri = ds["item_symbol_map"].b[sp_expr]
+            return p.ds.get_entity_by_uri(uri)
+        elif isinstance(sp_expr, (int, float, complex, sp.Number)):
+            msg= "Numbers are not yet implemented"
+            # TODO: determine which numbers (like 0, 1, -1, 2?) are already irkified
+            raise NotImplementedError(msg)
+
+        else:
+            sp_type = type(sp_expr)
+            irk_type = sp_to_irk_map.a.get(sp_type)
+
+            if irk_type is None:
+                msg = f"For {sp_type} there is no IRK-type defined yet"
+                raise NotImplementedError(msg)
+
+            return irk_type(*args)
+
+    def _get_args_for_sp(sp_expr):
+        return sp_expr.args
+
+    tt = TreeTraverser(apply_func=_get_irk_for_sp, get_args_func=_get_args_for_sp)
+    return tt.run(sp_expr)
+
 # <new_entities>
 
 # this section in the source file is helpful for bulk-insertion of new items
@@ -1742,7 +1787,7 @@ failed_multiplication = I5177["matmul"](A,P)
 # )
 
 
-#</new_entities>
+# </new_entities>
 
 
 p.end_mod()
