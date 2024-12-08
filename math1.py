@@ -494,6 +494,7 @@ I3263 = p.create_item(
     R11__has_range_of_result=I9904["matrix"],
 )
 
+
 def I3263_cc_pp(self, res: p.Item, *args, **kwargs):
     """
     :param self:    mapping item (to which this function will be attached)
@@ -502,7 +503,7 @@ def I3263_cc_pp(self, res: p.Item, *args, **kwargs):
     """
 
     assert len(args) == 1
-    matrix_item, = args
+    (matrix_item,) = args
 
     # define uri context to make the reference `R3326__has_dimension` work in other modules
     with p.uri_context(uri=__URI__):
@@ -517,6 +518,7 @@ def I3263_cc_pp(self, res: p.Item, *args, **kwargs):
         # this might be the case if the operator res comes from cache
         pass
     return res
+
 
 I3263["transpose"].add_method(I3263_cc_pp, "_custom_call_post_process")
 
@@ -667,7 +669,9 @@ R8736 = p.create_relation(
     R2__has_description="subject has a polynomial dependency object",
     R8__has_domain_of_argument_1=p.I12["mathematical object"],
     R11__has_range_of_result=I5030["variable"],
-    R18__has_usage_hint=("This relation is intentionally not functional to model multivariate polynomial dependency"),
+    R18__has_usage_hint=(
+        "This relation is intentionally not functional to model multivariate polynomial dependency"
+    ),
 )
 
 # eigenvalues
@@ -872,7 +876,6 @@ with I3749["Cayley-Hamilton theorem"].scope("assertion") as cm:
 # </theorem>
 
 
-
 I7559 = p.create_item(
     R1__has_label="cardinality",
     R2__has_description="returns the cardinality of a set or multiset",
@@ -893,8 +896,7 @@ I3589 = p.create_item(
 I9628 = p.create_item(
     R1__has_label="theorem on the number of roots of a polynomial",
     R2__has_description=(
-        "establishes the fact that a polynomial of degree n has exactly n roots "
-        "(counting multiplicities)"
+        "establishes the fact that a polynomial of degree n has exactly n roots " "(counting multiplicities)"
     ),
     R4__is_instance_of=p.I15["implication proposition"],
 )
@@ -947,7 +949,6 @@ I5167 = p.create_item(
     R1__has_label="state space",
     R2__has_description="type for a state space of a dynamical system (I6886)",
     R3__is_subclass_of=I5166["vector space"],
-
     # this should be defined via inheritance from vector space
     # TODO: test that this is the case
     # R41__has_required_instance_relation=R3326["has dimension"],
@@ -1073,7 +1074,7 @@ with I3134["definition of positive definiteness"].scope("setting") as cm:
 
     u = cm.new_var(u=p.uq_instance_of(I5843["neighborhood"]))
     cm.new_rel(cm.u, R4963["is neighborhood of"], cm.x0)
-    cm.new_rel(cm.u, p.R14["is subset of"],cm.M) # todo is this necessary? maybe rule in neighborhood
+    cm.new_rel(cm.u, p.R14["is subset of"], cm.M)  # todo is this necessary? maybe rule in neighborhood
 
     x = cm.new_var(x=p.uq_instance_of(I1168["point in state space"]))
 
@@ -1125,7 +1126,12 @@ with I8492["definition of negative definiteness"].scope("setting") as cm:
     cm.copy_from(I3134["definition of positive definiteness"].get_subscope("setting"))
 
 with I8492["definition of negative definiteness"].scope("premise") as cm:
-    cm.new_rel(I6209["scalneg"](cm.h(cm.x)), p.R16["has property"], I3133["positive definiteness"], qualifiers=[on_set(cm.u)])
+    cm.new_rel(
+        I6209["scalneg"](cm.h(cm.x)),
+        p.R16["has property"],
+        I3133["positive definiteness"],
+        qualifiers=[on_set(cm.u)],
+    )
 
 with I8492["definition of negative definiteness"].scope("assertion") as cm:
     cm.h.set_relation(p.R16["has property"], I3136["negative definiteness"], qualifiers=[on_set(cm.u)])
@@ -1147,7 +1153,7 @@ I9807 = p.create_item(
     R1__has_label="local Lipschitz continuity",
     R2__has_description="",
     R4__is_instance_of=p.I54["mathematical property"],
-    R17__is_subproperty_of=I6709["Lipschitz continuity"]
+    R17__is_subproperty_of=I6709["Lipschitz continuity"],
 )
 
 
@@ -1155,7 +1161,7 @@ I4505 = p.create_item(
     R1__has_label="global Lipschitz continuity",
     R2__has_description="",
     R4__is_instance_of=p.I54["mathematical property"],
-    R17__is_subproperty_of=I6709["Lipschitz continuity"]
+    R17__is_subproperty_of=I6709["Lipschitz continuity"],
 )
 
 
@@ -1195,13 +1201,13 @@ I4291 = p.create_item(
 I6043 = p.create_item(
     R1__has_label="sum",
     R2__has_description="base class for general sums (result of addition)",
-    R3__is_subclass_of=p.I18["mathematical expression"]
+    R3__is_subclass_of=p.I18["mathematical expression"],
 )
 
 I5916 = p.create_item(
     R1__has_label="product",
     R2__has_description="base class for general products (result of multiplication)",
-    R3__is_subclass_of=p.I18["mathematical expression"]
+    R3__is_subclass_of=p.I18["mathematical expression"],
 )
 
 
@@ -1210,10 +1216,9 @@ I5441 = p.create_item(
     R2__has_description="summation operator (capital Sigma)",
     R4__is_instance_of=I4895["mathematical operator"],
     R8__has_domain_of_argument_1=p.I18["mathematical expression"],
-    R9__has_domain_of_argument_2=p.I37["integer number"], # start
-    R10__has_domain_of_argument_3=[p.I37["integer number"], I4864["infinity class"]], # stop
+    R9__has_domain_of_argument_2=p.I37["integer number"],  # start
+    R10__has_domain_of_argument_3=[p.I37["integer number"], I4864["infinity class"]],  # stop
     R11__has_range_of_result=p.I18["mathematical expression"],
-
     # TODO:
     # R11__has_range_of_result=I6043["sum"],
 )
@@ -1227,6 +1232,7 @@ I9489 = p.create_item(
     R18__has_usage_hint="Use this operator to convert to matrix, then use matmul, matadd etc.",
 )
 
+
 def I9489_cc_pp(self, res: p.Item, *args, **kwargs):
     """
     :param self:    mapping item (to which this function will be attached)
@@ -1235,7 +1241,7 @@ def I9489_cc_pp(self, res: p.Item, *args, **kwargs):
     """
 
     assert len(args) == 1
-    vector_item, = args
+    (vector_item,) = args
 
     # define uri context to make the reference `R3326__has_dimension` work in other modules
     with p.uri_context(uri=__URI__):
@@ -1249,6 +1255,7 @@ def I9489_cc_pp(self, res: p.Item, *args, **kwargs):
         # this might be the case if the operator res comes from cache
         pass
     return res
+
 
 I9489["vector to matrix"].add_method(I9489_cc_pp, "_custom_call_post_process")
 
@@ -1270,7 +1277,7 @@ def I1284_cc_pp(self, res: p.Item, *args, **kwargs):
     """
 
     assert len(args) == 1
-    point_item, = args
+    (point_item,) = args
 
     # define uri context to make the reference `R3326__has_dimension` work in other modules
     with p.uri_context(uri=__URI__):
@@ -1282,6 +1289,7 @@ def I1284_cc_pp(self, res: p.Item, *args, **kwargs):
         # this might be the case if the operator res comes from cache
         pass
     return res
+
 
 I1284["point in vector space to vector"].add_method(I1284_cc_pp, "_custom_call_post_process")
 
@@ -1300,7 +1308,7 @@ I2328 = p.create_item(
     R4__is_instance_of=I4895["mathematical operator"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R11__has_range_of_result=I1063["scalar function"],
-) # TODO build test
+)  # TODO build test
 
 I7481 = p.create_item(
     R1__has_label="Jacobian",
@@ -1321,7 +1329,7 @@ I9827 = p.create_item(
     R2__has_description="",
     R4__is_instance_of=I4895["mathematical operator"],
     # R8__has_domain_of_argument_1=??,
-    R11__has_range_of_result=p.I53["bool"], # if a solution exists or not
+    R11__has_range_of_result=p.I53["bool"],  # if a solution exists or not
 )
 
 R3263 = p.create_relation(
@@ -1331,7 +1339,9 @@ R3263 = p.create_relation(
     R11__has_range_of_result=I2378["solution to a mathematical algorithm"],
 )
 
-I9827["mathematical algorithm"].set_relation(R3263["has solution"], I2378["solution to a mathematical algorithm"])
+I9827["mathematical algorithm"].set_relation(
+    R3263["has solution"], I2378["solution to a mathematical algorithm"]
+)
 
 
 # items to specify components of formulas
@@ -1359,6 +1369,7 @@ I9738 = p.create_item(
 class SymbolConversionError(p.aux.PyIRKError):
     pass
 
+
 class IRKSymbol(sp.Symbol):
     """
     Subclass of sympy.Symbol with some additional features
@@ -1373,7 +1384,6 @@ class IRKSymbol(sp.Symbol):
 
         self.is_transposed_of = None
         self._transpose_result = None
-
 
     @property
     def T(self):
@@ -1439,6 +1449,7 @@ class symbolicExpressionToGraphExpressionConverter:
 
         # prevent sympy import on global level (because it is unnecessary in most cases)
         import sympy
+
         self.sp = sympy
 
         self.symb_expression = symb_expression
@@ -1472,7 +1483,6 @@ class symbolicExpressionToGraphExpressionConverter:
             operator = I2495["add"]
         return self._apply_operator(args, operator)
 
-
     def _conv_mul(self, args):
         is_matrix_list = [self._is_matrix(a) for a in args]
         if any(is_matrix_list):
@@ -1495,7 +1505,6 @@ class symbolicExpressionToGraphExpressionConverter:
         else:
             self._raise_error_invalid_length(len(args))
 
-
     def _raise_error_invalid_length(self, length):
         msg = f"unexpected length of arguments: {length} while converting expression {self.symb_expression}"
         raise p.aux.PyIRKError(msg)
@@ -1504,8 +1513,6 @@ class symbolicExpressionToGraphExpressionConverter:
 def symbolic_expression_to_graph_expression(symb_expression):
     converter = symbolicExpressionToGraphExpressionConverter(symb_expression=symb_expression)
     return converter.convert()
-
-
 
 
 # add knowledge elements of planar geometry (for Pythagorean theorem)
@@ -1551,7 +1558,6 @@ I9148 = p.create_item(
     R2__has_description="operator that returns a tuple of I8172__polygon_side instances",
     R4__is_instance_of=I4895["mathematical operator"],
     R8__has_domain_of_argument_1=I7280["planar polygon"],
-
     # TODO: find a way to specify this further (e.g. with qualifiers), because we know the type of the result
     # another idea: introduce a callable Item like I95["typed tuple"](I8172["polygon side"])
     R11__has_range_of_result=p.I33["tuple"],
@@ -1626,7 +1632,10 @@ with I6117["definition of positive definiteness (matrix)"].scope("setting") as c
     x_mat = I9489["vector to matrix"](I1284["point in vector space to vector"](cm.x))
 
     s = cm.new_var(s=p.instance_of(I9923["scalar field"]))
-    cm.new_equation(s(x), I2328["matrix to scalar"](I5177["matmul"](I5177["matmul"](I3263["transpose"](x_mat), cm.M), x_mat)))
+    cm.new_equation(
+        s(x),
+        I2328["matrix to scalar"](I5177["matmul"](I5177["matmul"](I3263["transpose"](x_mat), cm.M), x_mat)),
+    )
 
 
 with I6117["definition of positive definiteness (matrix)"].scope("premise") as cm:
@@ -1636,8 +1645,6 @@ with I6117["definition of positive definiteness (matrix)"].scope("assertion") as
     cm.M.set_relation(p.R16["has property"], I3648["positive definiteness (matrix)"])
 
 I3648["positive definiteness (matrix)"].set_relation(p.R37["has definition"], I6117)
-
-
 
 
 I5073 = p.create_item(
@@ -1676,20 +1683,16 @@ with I5073.scope("premise") as cm:
     cm.new_rel(cm.arg1_ra, p.R40["has index"], 0)
     cm.new_rel(cm.arg2_ra, p.R40["has index"], 1)
 
-
     # this is used because for some unknown reason the subgraph matching does not work
     # with n2 and m1 (however it works in the unittests of pyirk-core)
     # TODO: investigate further
 
     def cond_func(_, arg1, arg2):
         # first argument (anchor item) can be ignored here
-        cond  = arg1.R5939 is not None \
-            and arg2.R5938 is not None \
-            and  arg1.R5939 != arg2.R5938
+        cond = arg1.R5939 is not None and arg2.R5938 is not None and arg1.R5939 != arg2.R5938
         return cond
 
     cm.new_condition_func(cond_func, cm.arg1, cm.arg2)
-
 
     if 0:
         # specify the argument order
@@ -1697,11 +1700,11 @@ with I5073.scope("premise") as cm:
         cm.new_rel(cm.arg1, R5939["has column number"], cm.m1)
         cm.new_rel(cm.arg2, R5938["has row number"], cm.n2)
 
+        # cm.new_math_relation(cm.m1, "!=", cm.n2)
 
-    # cm.new_math_relation(cm.m1, "!=", cm.n2)
-
-    # TODO: create this condition function from the above relation
+        # TODO: create this condition function from the above relation
         cm.new_condition_func(lambda self, x, y: x != y, cm.m1, cm.n2)
+
 
 def create_constraint_violation_item(anchor_item, main_arg, rule):
 
@@ -1712,6 +1715,7 @@ def create_constraint_violation_item(anchor_item, main_arg, rule):
     res.new_statements.append(main_arg.set_relation(p.R74["has constraint violation"], cvio))
 
     return res
+
 
 with I5073.scope("assertion") as cm:
     cm.new_consequent_func(create_constraint_violation_item, cm.x, cm.rule)
@@ -1725,7 +1729,7 @@ P = p.instance_of(I9906["square matrix"])
 P.set_relation(R5938["has row number"], 4)
 P.set_relation(R5939["has column number"], 5)
 
-failed_multiplication = I5177["matmul"](A,P)
+failed_multiplication = I5177["matmul"](A, P)
 
 
 sp_to_irk_map = p.aux.OneToOneMapping(
@@ -1752,7 +1756,7 @@ def convert_sympy_to_irk(sp_expr):
             uri = ds["item_symbol_map"].b[sp_expr]
             return p.ds.get_entity_by_uri(uri)
         elif isinstance(sp_expr, (int, float, complex, sp.Number)):
-            msg= "Numbers are not yet implemented"
+            msg = "Numbers are not yet implemented"
             # TODO: determine which numbers (like 0, 1, -1, 2?) are already irkified
             raise NotImplementedError(msg)
 
@@ -1771,6 +1775,7 @@ def convert_sympy_to_irk(sp_expr):
 
     tt = TreeTraverser(apply_func=_get_irk_for_sp, get_args_func=_get_args_for_sp)
     return tt.run(sp_expr)
+
 
 # <new_entities>
 

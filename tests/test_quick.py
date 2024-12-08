@@ -22,6 +22,7 @@ if not os.environ.get("PYIRK_DISABLE_CONSISTENCY_CHECKING", "").lower() == "true
 PACKAGE_ROOT_PATH = Path(__file__).parent.parent.absolute().as_posix()
 ma = p.irkloader.load_mod_from_path(pjoin(PACKAGE_ROOT_PATH, "math1.py"), prefix="ma", reuse_loaded=True)
 
+
 class Test_02_math(unittest.TestCase):
     def setUp(self):
         p.start_mod(ma.__URI__)
@@ -39,7 +40,7 @@ class Test_02_math(unittest.TestCase):
         I1002 = p.create_item(R1__has_label="c", R4__is_instance_of=p.I35["real number"])
 
         a, b, c = ma.items_to_symbols(I1000, I1001, I1002)
-        formula1 = a + b*(a + c)
+        formula1 = a + b * (a + c)
 
         res1 = ma.convert_sympy_to_irk(formula1)
         self.assertEqual(res1.R4__is_instance_of, p.I12["mathematical object"])
