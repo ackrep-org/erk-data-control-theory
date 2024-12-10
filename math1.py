@@ -364,6 +364,14 @@ I8133 = p.create_item(
 #     R11__has_range_of_result=p.I42["mathematical type (metaclass)"],
 # )
 
+I5005 = p.create_item(
+    R1__has_label="real part",
+    R2__has_description="returns the real part of a complex number",
+    R4__is_instance_of=I4895["mathematical operator"],
+    R8__has_domain_of_argument_1=p.I34["complex number"],
+    R11__has_range_of_result=p.I35["real number"],
+)
+
 I5006 = p.create_item(
     R1__has_label="imaginary part",
     R2__has_description="returns the imaginary part of a complex number",
@@ -413,8 +421,8 @@ with I1979["definition of open left half plane"].scope("setting") as cm:
     # the premise should hold   for all   elements z of the subset HP
     cm.new_rel(cm.z, p.R15["is element of"], cm.HP, qualifiers=p.univ_quant(True))
 
-    imag = I5006["imaginary part"]
-    cm.new_var(y=imag(cm.z))
+    real = I5005["real part"]
+    cm.new_var(y=real(cm.z))
 
 with I1979["definition of open left half plane"].scope("premise") as cm:
     cm.new_math_relation(cm.y, "<", I5000["scalar zero"])
