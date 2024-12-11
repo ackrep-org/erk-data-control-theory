@@ -1712,7 +1712,7 @@ with I8142["theorem by Vannelli for Lyapunov functions for homogeneous systems"]
             cm.new_equation(ma.I3589["monovariate polynomial degree"](evaluated_F_ij), i)
 
     cm.new_equation(
-        f(x), ma.I5441["sum over index"](evaluated_F_i, ma.I5001["scalar one"], ma.I4291["infinity"])
+        f(x), ma.I5441["sum over index"](evaluated_F_i, i, ma.I5440["limits"](ma.I5001["scalar one"], ma.I4291["infinity"]))
     )
 
     D = cm.new_var(M=p.instance_of(ma.I5167["state space"]))

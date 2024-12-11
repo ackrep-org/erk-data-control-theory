@@ -1218,17 +1218,36 @@ I5916 = p.create_item(
     R3__is_subclass_of=p.I18["mathematical expression"],
 )
 
+I5440 = p.create_item(
+    R1__has_label="limits",
+    R2__has_description="tuple for limits in sums, integrals, etc",
+    R3__is_subclass_of=p.I1["general item"], # todo what is a good superclass here? Imo this is not a math operator
+    R8__has_domain_of_argument_1=[p.I35["real number"], I4864["infinity class"]],
+    R9__has_domain_of_argument_2=[p.I35["real number"], I4864["infinity class"]], # todo with this you cant integrate from -infty to infty
+    R11__has_range_of_result=p.I33["tuple"],
+)
+I5440["limits"].add_method(p.create_evaluated_mapping, "_custom_call")
 
 I5441 = p.create_item(
     R1__has_label="sum over index",
-    R2__has_description="summation operator (capital Sigma)",
+    R2__has_description="summation operator (capital Sigma). Args are: expression, index of summation variable, limits-tuple",
     R4__is_instance_of=I4895["mathematical operator"],
-    R8__has_domain_of_argument_1=p.I18["mathematical expression"],
-    R9__has_domain_of_argument_2=p.I37["integer number"],  # start
-    R10__has_domain_of_argument_3=[p.I37["integer number"], I4864["infinity class"]],  # stop
+    R8__has_domain_of_argument_1=p.I12["mathematical object"],
+    R9__has_domain_of_argument_2=p.I12["mathematical object"], # running index
+    R10__has_domain_of_argument_3=p.I33["tuple"],  # (start, stop) -tuple
     R11__has_range_of_result=p.I18["mathematical expression"],
     # TODO:
     # R11__has_range_of_result=I6043["sum"],
+)
+
+I5442 = p.create_item(
+    R1__has_label="integral",
+    R2__has_description="integral operator ∫. Args are: expression, integration variable, limits-tuple",
+    R4__is_instance_of=I4895["mathematical operator"],
+    R8__has_domain_of_argument_1=p.I12["mathematical object"],
+    R9__has_domain_of_argument_2=p.I12["mathematical object"], # integration variable
+    R10__has_domain_of_argument_3=p.I33["tuple"],  # (start, stop) -tuple
+    R11__has_range_of_result=p.I18["mathematical expression"],
 )
 
 I9489 = p.create_item(
@@ -1744,6 +1763,10 @@ sp_to_irk_map = p.aux.OneToOneMapping(
     a_dict={
         sp.Add: p.I55["add"],
         sp.Mul: p.I56["mul"],
+        sp.Pow: p.I57["pow"],
+        sp.Sum: I5441["sum over index"],
+        sp.Integral: I5442["integral"],
+        sp.Tuple: lambda *args: tuple(args)
     }
 )
 
@@ -1757,6 +1780,16 @@ class TreeTraverser:
         args = [self.run(arg) for arg in self.get_args_func(node)]
         return self.apply_func(node, args)
 
+def number_type_convert(n):
+    if isinstance(n, sp.Number):
+        if isinstance(n, sp.Integer):
+            return int(n)
+        elif isinstance(n, sp.Float):
+            return float(n)
+        else:
+            raise NotImplementedError(f"sympy type {type(n)} not supported")
+    else:
+        return n
 
 def convert_sympy_to_irk(sp_expr):
     def _get_irk_for_sp(sp_expr, args):
@@ -1764,6 +1797,12 @@ def convert_sympy_to_irk(sp_expr):
             uri = ds["item_symbol_map"].b[sp_expr]
             return p.ds.get_entity_by_uri(uri)
         elif isinstance(sp_expr, (int, float, complex, sp.Number)):
+            if sp_expr == 0:
+                return I5000["scalar zero"]
+            elif sp_expr == 1:
+                return I5001["scalar one"]
+            else:
+                return number_type_convert(sp_expr)
             msg = "Numbers are not yet implemented"
             # TODO: determine which numbers (like 0, 1, -1, 2?) are already irkified
             raise NotImplementedError(msg)
@@ -1775,6 +1814,10 @@ def convert_sympy_to_irk(sp_expr):
             if irk_type is None:
                 msg = f"For {sp_type} there is no IRK-type defined yet"
                 raise NotImplementedError(msg)
+            elif sp_type == sp.Sum or sp_type == sp.Integral:
+                # sympy syntax: sp.Sum(expr, (index_var, start, stop))
+                # sympy syntax: sp.Integral(expr, (index_var, start, stop))
+                args = (args[0], args[1][0], I5440["limits"](*args[1][1:]))
 
             return irk_type(*args)
 
@@ -1782,7 +1825,8 @@ def convert_sympy_to_irk(sp_expr):
         return sp_expr.args
 
     tt = TreeTraverser(apply_func=_get_irk_for_sp, get_args_func=_get_args_for_sp)
-    return tt.run(sp_expr)
+    res = tt.run(sp_expr)
+    return res
 
 
 # <new_entities>
