@@ -1432,12 +1432,18 @@ class IRKSymbol(sp.Symbol):
         self._transpose_result = new_symb
         return new_symb
 
+class IRKFunction(sp.core.function.UndefinedFunction):
+    def __init__(self, name, **kwargs):
+        super().__init__(name)
+        assert self.name == name
 
 # helper function to simplify creation of formulas
 
 
-def items_to_symbols(*args, relation=None) -> list:
-
+def items_to_symbols(*args, relation=None, callable=False) -> list:
+    """
+    set callable to True if you want to create callable sympy function symbols
+    """
     if not "item_symbol_map" in ds:
         ds["item_symbol_map"] = p.aux.OneToOneMapping()
     item_symbol_map = ds["item_symbol_map"]
@@ -1452,14 +1458,23 @@ def items_to_symbols(*args, relation=None) -> list:
 
     for i, itm in enumerate(args, start=n):
         assert isinstance(itm, p.Item)
-        # TODO: check meaningful types (numbers, expressions, evaluated mappings, but not eg. ag.I7435["human"])
-        suffix = itm.R1__has_label.split(" ")[0]
-        name = f"s{i}_{suffix}"
-        symb = IRKSymbol(name, commutative=False)
+        # check if item was already symbolized, then just return existing symbol
+        if itm.uri in item_symbol_map.a.keys():
+            symb = item_symbol_map.a[itm.uri]
+        # create new symbol
+        else:
+            # TODO: check meaningful types (numbers, expressions, evaluated mappings, but not eg. ag.I7435["human"])
+            suffix = itm.R1__has_label.split(" ")[0]
+            name = f"s{i}_{suffix}"
+            if callable:
+                symb = IRKFunction(name)
+            else:
+                symb = IRKSymbol(name, commutative=False)
+
+            # a: keys=uris, values=symbols; b: keys=symbols, values=uris;
+            item_symbol_map.add_pair(itm.uri, symb)
         res.append(symb)
 
-        # a: keys=uris, values=symbols; b: keys=symbols, values=uris;
-        item_symbol_map.add_pair(itm.uri, symb)
 
     if len(args) == 1:
         assert len(res) == 1
@@ -1761,6 +1776,9 @@ failed_multiplication = I5177["matmul"](A, P)
 
 sp_to_irk_map = p.aux.OneToOneMapping(
     a_dict={
+        # in theory for the 1to1 mapping it would be nice to have I55["add"] on the right hand side
+        # but that currently fails in the cosistency checker, since the item I55 can only have ==2 args, but the
+        # add_items function can take an arbitrary amount
         sp.Add: p.add_items,
         sp.Mul: p.mul_items,
         sp.Pow: p.pow_items,
@@ -1770,6 +1788,17 @@ sp_to_irk_map = p.aux.OneToOneMapping(
     }
 )
 
+irk_to_sp_map = p.aux.OneToOneMapping(
+    a_dict={
+        p.I55["add"]: sp.Add,
+        p.I56["mul"]: sp.Mul,
+        p.I57["pow"]: sp.Pow,
+        I5441["sum over index"]: sp.Sum,
+        I5442["integral"]: sp.Integral,
+    }
+)
+
+# todo maybe these two can be merged
 
 class TreeTraverser:
     def __init__(self, apply_func, get_args_func):
@@ -1860,6 +1889,48 @@ def convert_sympy_to_irk(sp_expr):
 
     tt = TreeTraverser(apply_func=_get_irk_for_sp, get_args_func=_get_args_for_sp)
     res = tt.run(sp_expr)
+    return res
+
+def convert_irk_to_sympy(irk_expr):
+    def _get_sp_for_irk(irk_expr, args):
+        # numbers
+        if isinstance(irk_expr, (int, float, complex)):
+            return irk_expr
+        # Functions
+        # elif p.is_instance_of(irk_expr, p.I6["mathematical operation"]):
+        elif len(args) > 0:
+            # if there are arguments, this node must be callable
+            sp_type = irk_to_sp_map.a.get(irk_expr.R35)
+            if sp_type is None:
+                # assume its a custom operator
+                # if "item_symbol_map" in ds.keys() and irk_expr.uri in ds["item_symbol_map"].a.keys():
+                #     sp_type = ds["item_symbol_map"].a[irk_expr.uri]
+                # else:
+                sp_type = items_to_symbols(irk_expr, callable=True)
+
+            return sp_type(*args)
+        # some special symbols
+        elif irk_expr.R1 == "scalar zero":
+            return 0
+        elif irk_expr.R1 == "scalar one":
+            return 1
+        # all other symbols
+        else:
+            # look if symbol was already created
+            # if "item_symbol_map" in ds.keys() and irk_expr.uri in ds["item_symbol_map"].a.keys():
+            #     s = ds["item_symbol_map"].a[irk_expr.uri]
+            # else:
+            s = items_to_symbols(irk_expr) #todo whats up with the relations argument?
+            return s
+
+    def _get_args_for_irk(irk_expr):
+        try:
+            return irk_expr.R36.R39
+        except:
+            return []
+
+    tt = TreeTraverser(apply_func=_get_sp_for_irk, get_args_func=_get_args_for_irk)
+    res = tt.run(irk_expr)
     return res
 
 
