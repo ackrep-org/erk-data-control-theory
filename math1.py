@@ -1393,7 +1393,7 @@ I9738 = p.create_item(
 )
 
 
-class SymbolConversionError(p.aux.PyIRKError):
+class SymbolConversionError(p.aux.PyIRKException):
     pass
 
 
