@@ -17,7 +17,9 @@ if not os.environ.get("PYIRK_DISABLE_CONSISTENCY_CHECKING", "").lower() == "true
 PACKAGE_ROOT_PATH = Path(__file__).parent.parent.absolute().as_posix()
 ag = p.irkloader.load_mod_from_path(pjoin(PACKAGE_ROOT_PATH, "agents1.py"), prefix="ag")
 ma = p.irkloader.load_mod_from_path(pjoin(PACKAGE_ROOT_PATH, "math1.py"), prefix="ma", reuse_loaded=True)
-ct = p.irkloader.load_mod_from_path(pjoin(PACKAGE_ROOT_PATH, "control_theory1.py"), prefix="ct", reuse_loaded=True)
+ct = p.irkloader.load_mod_from_path(
+    pjoin(PACKAGE_ROOT_PATH, "control_theory1.py"), prefix="ct", reuse_loaded=True
+)
 
 
 class Test_01_basics(unittest.TestCase):
@@ -91,11 +93,13 @@ class Test_02_math(unittest.TestCase):
         symbolic_sum = la + lb + lc
 
         sum_item = ma.symbolic_expression_to_graph_expression(symbolic_sum)
-        self.assertEqual(sum_item.get_arguments()[0].get_arguments(), [a.R2495__has_length, b.R2495__has_length])
+        self.assertEqual(
+            sum_item.get_arguments()[0].get_arguments(), [a.R2495__has_length, b.R2495__has_length]
+        )
         self.assertEqual(sum_item.get_arguments()[1], c.R2495__has_length)
         self.assertEqual(sum_item.R4__is_instance_of, ma.I6043["sum"])
 
-        symbolic_prod = la*lb
+        symbolic_prod = la * lb
         prod_item = ma.symbolic_expression_to_graph_expression(symbolic_prod)
         self.assertEqual(prod_item.get_arguments(), [a.R2495__has_length, b.R2495__has_length])
         self.assertEqual(prod_item.R4__is_instance_of, ma.I5916["product"])
@@ -115,38 +119,38 @@ class Test_02_math(unittest.TestCase):
         # abbreviation for convenience
         se_to_ge = ma.symbolic_expression_to_graph_expression
 
-
         sum1 = se_to_ge(Ps + As)
         self.assertEqual(sum1.R4__is_instance_of, ma.I9904["matrix"])
         self.assertEqual(sum1.R35__is_applied_mapping_of, ma.I9493["matadd"])
 
-        prod1 = se_to_ge(Ps*As)
+        prod1 = se_to_ge(Ps * As)
         self.assertEqual(prod1.R4__is_instance_of, ma.I9904["matrix"])
         self.assertEqual(prod1.R35__is_applied_mapping_of, ma.I5177["matmul"])
 
-        expr_item1 = ma.I9493["matadd"](ma.I5177["matmul"](ma.I3263["transpose"](A), P), ma.I5177["matmul"](P, A))
+        expr_item1 = ma.I9493["matadd"](
+            ma.I5177["matmul"](ma.I3263["transpose"](A), P), ma.I5177["matmul"](P, A)
+        )
 
-        expr2 = As.T*Ps + Ps*As
+        expr2 = As.T * Ps + Ps * As
         expr_item2 = se_to_ge(expr2)
         self.assertEqual(expr_item1, expr_item2)
 
         x = p.instance_of(ma.I1168["point in state space"])
 
         D = p.instance_of(ma.I5167["state space"])
-        n = n=p.instance_of(p.I39["positive integer"])
+        n = n = p.instance_of(p.I39["positive integer"])
         D.ma__R3326__has_dimension = n
         x.R15__is_element_of = D
 
         x_mat = ma.I9489["vector to matrix"](ma.I1284["point in vector space to vector"](x))
 
         xs = ma.items_to_symbols(x_mat)
-        V = xs.T*Ps*xs
+        V = xs.T * Ps * xs
 
         V_expr_item = se_to_ge(V)
 
         self.assertEqual(V_expr_item.R4__is_instance_of, ma.I9904["matrix"])
         self.assertEqual(V_expr_item.R35__is_applied_mapping_of, ma.I5177["matmul"])
-
 
     def test_c05__cc_matrix_dimensions(self):
 
@@ -158,7 +162,7 @@ class Test_02_math(unittest.TestCase):
         self.assertGreaterEqual(len(res.new_statements), 1)
         self.assertEqual(len(res.new_entities), 1)
 
-        cvio, = ma.failed_multiplication.R74__has_constraint_violation
+        (cvio,) = ma.failed_multiplication.R74__has_constraint_violation
         self.assertEqual(cvio.R76__has_associated_rule, I5073)
         self.assertEqual(cvio.R4__is_instance_of, p.I48["constraint violation"])
 
@@ -203,10 +207,8 @@ class Test_02_math(unittest.TestCase):
         x.set_relation(p.R16["has property"], ct.I6467["saddle"])
         x.set_relation(p.R16["has property"], ct.I2931["local Lyapunov stability"])
 
-
         # test the rule which produces a I48["constraint violation"] instance
         res = p.ruleengine.apply_semantic_rule(I5073, ct.__URI__)
-
 
         # gather test entities that are expected to fail
         expected_failed_statements = [s for s in res.new_statements if s.subject == contradicting_equilibrium]
@@ -217,9 +219,11 @@ class Test_02_math(unittest.TestCase):
         self.assertEqual(cvio.R76__has_associated_rule, I5073)
 
         # actually problematic entities
-        wrong_statements = [[s, d] for s, d in zip(res.new_statements, res.partial_results[0].statement_reports)
-            if s.subject != contradicting_equilibrium and s.subject.R4 != p.I48["constraint violation"]]
-
+        wrong_statements = [
+            [s, d]
+            for s, d in zip(res.new_statements, res.partial_results[0].statement_reports)
+            if s.subject != contradicting_equilibrium and s.subject.R4 != p.I48["constraint violation"]
+        ]
 
         msg = ""
         for s, d in wrong_statements:
@@ -278,7 +282,6 @@ class Test_02_math(unittest.TestCase):
             V = cm.new_var(V=p.instance_of(ct.I9199["strong Lyapunov Function"]))
         # </theorem>
 
-
         # test start here:
 
         theorems = p.get_all_instances_of(p.I14["mathematical proposition"])
@@ -292,8 +295,7 @@ class Test_02_math(unittest.TestCase):
                 if sys.get_relations("R20", return_obj=True)[0].R64 == "SETTING":
                     return False
 
-
-            scopes = th.get_inv_relations("R21",return_subj=True)
+            scopes = th.get_inv_relations("R21", return_subj=True)
             set, pre, ass = None, None, None
             for scope in scopes:
                 match scope.R64:
@@ -308,12 +310,20 @@ class Test_02_math(unittest.TestCase):
                 return False
 
             setting_items = set.get_inv_relations("R20", return_subj=True)
-            systh = [i for i in setting_items if isinstance(i, p.Item) and p.is_instance_of(i, ct.I7641["general system model"])]
+            systh = [
+                i
+                for i in setting_items
+                if isinstance(i, p.Item) and p.is_instance_of(i, ct.I7641["general system model"])
+            ]
             if len(systh) != 1:
                 return False
             systh = systh[0]
 
-            repth = [i for i in setting_items if isinstance(i, p.Item) and p.is_instance_of(i, ct.I2928["general model representation"])]
+            repth = [
+                i
+                for i in setting_items
+                if isinstance(i, p.Item) and p.is_instance_of(i, ct.I2928["general model representation"])
+            ]
             if len(repth) != 1:
                 return False
             repth = repth[0]
@@ -341,13 +351,14 @@ class Test_02_math(unittest.TestCase):
                         if not p.is_subproperty(stm.object, obj):
                             cond = cond and False
 
-
             return cond
 
         res_list = []
         for th, sys in itertools.product(theorems, systems):
 
-            rep = sys.get_relations("irk:/ocse/0.2/control_theory#R2928", return_obj=True) # R2928__has_model_repr
+            rep = sys.get_relations(
+                "irk:/ocse/0.2/control_theory#R2928", return_obj=True
+            )  # R2928__has_model_repr
             if len(rep) == 1:
                 if cond_func(sys, rep[0], th):
                     res_list.append((sys, th))
@@ -363,6 +374,26 @@ class Test_02_math(unittest.TestCase):
         print(res.new_statements)
         self.assertTrue(len(res.new_statements) >= 7)
 
+    def test_d01__sp_to_irk_conversion(self):
+        I4000 = p.create_item(R1__has_label="a", R4__is_instance_of=p.I35["real number"])
+        I4001 = p.create_item(R1__has_label="b", R4__is_instance_of=p.I35["real number"])
+        I4002 = p.create_item(R1__has_label="c", R4__is_instance_of=p.I35["real number"])
+
+        a, b, c = ma.items_to_symbols(I4000, I4001, I4002)
+        formula1 = a + b * (a + c)
+
+        res1 = ma.convert_sympy_to_irk(formula1)
+        self.assertEqual(res1.R4__is_instance_of, p.I12["mathematical object"])
+        self.assertEqual(res1.R35__is_applied_mapping_of, p.I55["add"])
+
+        # note that sympy changes the order (w.r.t. how formula1 is written above)
+        # formula1.args -> (s1_b*(s0_a + s2_c), s0_a)
+        self.assertEqual(res1.R36__has_argument_tuple.R39__has_element[1], I4000["a"])
+
+        # now use short versions of R36__has_argument_tuple and R39__has_element
+        self.assertEqual(res1.R36.R39[0].R35__is_applied_mapping_of, p.I56["mul"])
+        self.assertEqual(res1.R36.R39[0].R36.R39[0], I4001["b"])
+
 
 class Test_02_control_theory(unittest.TestCase):
     def setUp(self):
@@ -372,7 +403,7 @@ class Test_02_control_theory(unittest.TestCase):
         p.end_mod()
 
     def test_b01__test_multilinguality(self):
-        ct.I5290["reference value"].R1__has_label__de == "Sollwert"@p.de
+        ct.I5290["reference value"].R1__has_label__de == "Sollwert" @ p.de
 
 
 class Test_03_agents(unittest.TestCase):
