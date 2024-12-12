@@ -1222,8 +1222,8 @@ I5440 = p.create_item(
     R1__has_label="limits",
     R2__has_description="tuple for limits in sums, integrals, etc",
     R3__is_subclass_of=p.I1["general item"], # todo what is a good superclass here? Imo this is not a math operator
-    R8__has_domain_of_argument_1=[p.I35["real number"], I4864["infinity class"]],
-    R9__has_domain_of_argument_2=[p.I35["real number"], I4864["infinity class"]], # todo with this you cant integrate from -infty to infty
+    R8__has_domain_of_argument_1=[p.I12["mathematical object"], p.I35["real number"], I4864["infinity class"]],
+    R9__has_domain_of_argument_2=[p.I12["mathematical object"], p.I35["real number"], I4864["infinity class"]], # todo with this you cant integrate from -infty to infty
     R11__has_range_of_result=p.I33["tuple"],
 )
 I5440["limits"].add_method(p.create_evaluated_mapping, "_custom_call")
@@ -1761,12 +1761,12 @@ failed_multiplication = I5177["matmul"](A, P)
 
 sp_to_irk_map = p.aux.OneToOneMapping(
     a_dict={
-        sp.Add: p.I55["add"],
-        sp.Mul: p.I56["mul"],
-        sp.Pow: p.I57["pow"],
+        sp.Add: p.add_items,
+        sp.Mul: p.mul_items,
+        sp.Pow: p.pow_items,
         sp.Sum: I5441["sum over index"],
         sp.Integral: I5442["integral"],
-        sp.Tuple: lambda *args: tuple(args)
+        sp.Tuple: lambda *args: tuple(args),
     }
 )
 
@@ -1791,11 +1791,48 @@ def number_type_convert(n):
     else:
         return n
 
+def convert_latex_to_irk(sp_expr, lookup):
+    # 1. identify smybols and function in expr
+    sp_atoms = []
+    # symbols (and numbers, will get rid of later)
+    sp_atoms.extend(list(sp_expr.atoms()))
+    # symbols that work as functions, e.g. f in f(x)
+    sp_atoms.extend([type(a) for a in list(sp_expr.atoms(sp.Function))])
+
+    # 2. map those to existing pyirk items
+    if not "item_symbol_map" in ds:
+        ds["item_symbol_map"] = p.aux.OneToOneMapping()
+    item_symbol_map = ds["item_symbol_map"]
+
+    for atom in sp_atoms:
+        if isinstance(atom, sp.Number):
+            continue
+        for item in lookup:
+            # todo this name compare is potentially dangerous
+            if atom.name == item.R1:
+                item_symbol_map.add_pair(item.uri, atom)
+                break
+        else:
+            raise ValueError(f"no item found for {atom}")
+    # 3. traverse tree
+    res = convert_sympy_to_irk(sp_expr)
+    return res
+
 def convert_sympy_to_irk(sp_expr):
     def _get_irk_for_sp(sp_expr, args):
-        if isinstance(sp_expr, IRKSymbol):
+        # Symbols
+        if isinstance(sp_expr, sp.Symbol):
             uri = ds["item_symbol_map"].b[sp_expr]
             return p.ds.get_entity_by_uri(uri)
+        # callable custom Funktions e.g. f(x)
+        elif isinstance(type(sp_expr), sp.core.function.UndefinedFunction):
+            # this typing is a little weird
+            # f(x) -type-> f -type-> sp.core.function.UndefinedFunction
+            sp_expr = type(sp_expr)
+            uri = ds["item_symbol_map"].b[sp_expr]
+            function_type = p.ds.get_entity_by_uri(uri)
+            return function_type(*args)
+        # numbers
         elif isinstance(sp_expr, (int, float, complex, sp.Number)):
             if sp_expr == 0:
                 return I5000["scalar zero"]
@@ -1803,10 +1840,7 @@ def convert_sympy_to_irk(sp_expr):
                 return I5001["scalar one"]
             else:
                 return number_type_convert(sp_expr)
-            msg = "Numbers are not yet implemented"
-            # TODO: determine which numbers (like 0, 1, -1, 2?) are already irkified
-            raise NotImplementedError(msg)
-
+        # callable generic function e.g. add
         else:
             sp_type = type(sp_expr)
             irk_type = sp_to_irk_map.a.get(sp_type)

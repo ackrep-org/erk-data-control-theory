@@ -35,7 +35,7 @@ class Test_02_math(unittest.TestCase):
     def test_a00__ensure_version(self):
         self.assertGreaterEqual(version.parse(p.__version__), version.parse("0.13.2"))
 
-    def test_q01__sp_to_irk_conversion(self):
+    def test_q01__sp_to_irk_conversion1_basics(self):
         # run with `pytest -s tests/test_quick.py`
         I1000 = p.create_item(R1__has_label="a", R4__is_instance_of=p.I35["real number"])
         I1001 = p.create_item(R1__has_label="b", R4__is_instance_of=p.I35["real number"])
@@ -56,7 +56,7 @@ class Test_02_math(unittest.TestCase):
         self.assertEqual(res1.R36.R39[0].R35__is_applied_mapping_of, p.I56["mul"])
         self.assertEqual(res1.R36.R39[0].R36.R39[0], I1001["b"])
 
-    def test_q02__sp_to_irk_conversion2(self):
+    def test_q02__sp_to_irk_conversion2_sum_integral(self):
         # run with `pytest -s tests/test_quick.py`
         I2000 = p.create_item(R1__has_label="a", R4__is_instance_of=p.I35["real number"])
         I2001 = p.create_item(R1__has_label="b", R4__is_instance_of=p.I35["real number"])
@@ -79,3 +79,52 @@ class Test_02_math(unittest.TestCase):
         self.assertTrue(p.is_instance_of(res2, p.I12["mathematical object"]))
         self.assertEqual(res2.R35__is_applied_mapping_of, ma.I5442["integral"])
         self.assertEqual(res2, ma.I5442["integral"](p.I57["pow"](I2000, 2), I2000, ma.I5440["limits"](I2001, I2002)))
+
+    def test_q03__sp_to_irk_conversion3_from_latex(self):
+        from sympy.parsing.latex import parse_latex_lark
+        I3000 = p.create_item(R1__has_label="s", R4__is_instance_of=p.I34["complex number"])
+        I3001 = p.create_item(R1__has_label="i", R4__is_instance_of=p.I35["real number"])
+        I3002 = p.create_item(R1__has_label="j", R4__is_instance_of=p.I35["real number"])
+        I3003 = p.create_item(R1__has_label="F",
+                              R4__is_instance_of=p.I7["mathematical operation with arity 1"],
+                              R8__has_domain_of_argument_1=p.I34["complex number"],
+                              R11__has_range_of_result=p.I34["complex number"])
+        I3004 = p.create_item(R1__has_label="f",
+                              R4__is_instance_of=p.I7["mathematical operation with arity 1"],
+                              R8__has_domain_of_argument_1=p.I35["real number"],
+                              R11__has_range_of_result=p.I35["real number"])
+        I3005 = p.create_item(R1__has_label="k", R4__is_instance_of=p.I35["real number"]) # item that doesnt appear
+        I3006 = p.create_item(R1__has_label="t", R4__is_instance_of=p.I35["real number"])
+        item_list = [I3000, I3001, I3002, I3003, I3004, I3005, I3006]
+        latex = r"s^i * F(s) - \sum\limits_{j=0}^{i-1}(s^{i-1-j} * f(t)^{j})"
+        formula1 = parse_latex_lark(latex)
+        res = ma.convert_latex_to_irk(formula1, item_list)
+        target = p.I55["add"](
+            p.I56["mul"](
+                -1,
+                ma.I5441["sum over index"](
+                    p.I56["mul"](
+                        p.I57["pow"](
+                            I3000["s"],
+                            p.add_items(
+                                -1,
+                                I3001["i"],
+                                p.I56["mul"](-1, I3002["j"])
+                            )
+                        ),
+                        p.I57["pow"](I3004["f"](I3006["t"]), I3002["j"])
+                    ),
+                    I3002["j"],
+                    ma.I5440["limits"](
+                        ma.I5000["scalar zero"],
+                        p.I55["add"](-1, I3001["i"])
+                    )
+                )
+            ),
+            p.I56["mul"](
+                p.I57["pow"](I3000["s"], I3001["i"]),
+                I3003["F"](I3000["s"])
+            )
+        )
+        self.assertEqual(res, target)
+
