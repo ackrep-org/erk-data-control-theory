@@ -518,7 +518,7 @@ I2753 = p.create_item(
     R1__has_label="flow of a vector field",
     R2__has_description="operator yielding the solution of the associated I9273__explicit_first_order_ODE_system",
     # this is an instance and not a subclass because there is only one flow operator
-    R4__is_instance_of=ma.I4895["mathematical operator"],
+    R4__is_instance_of=p.I9["mathematical operation with arity 3"],
     R8__has_domain_of_argument_1=ma.I1168["point in state space"],
     R9__has_domain_of_argument_2=p.I35["real number"],
     R10__has_domain_of_argument_3=I9273["explicit first order ODE system"],
@@ -535,7 +535,7 @@ I2075 = p.create_item(
     R2__has_description=(
         "operator yielding an new expression where in expression arg1 the subexpression arg2 is replaced by arg3"
     ),
-    R4__is_instance_of=ma.I4895["mathematical operator"],
+    R4__is_instance_of=p.I9["mathematical operation with arity 3"],
     R8__has_domain_of_argument_1=p.I18["mathematical expression"],
     R9__has_domain_of_argument_2=p.I18["mathematical expression"],
     R10__has_domain_of_argument_3=p.I18["mathematical expression"],
@@ -551,7 +551,7 @@ I1347 = p.create_item(
         "h2 can be interpreted as the time derivative of h_1 along the solution of the ode associated with f; "
         "in other words: along the flow of f"
     ),
-    R4__is_instance_of=ma.I4895["mathematical operator"],
+    R4__is_instance_of=p.I8["mathematical operation with arity 2"],
     R8__has_domain_of_argument_1=ma.I9923["scalar field"],
     R9__has_domain_of_argument_2=ma.I9841["vector field"],
     # R10__has_domain_of_argument_3=ma.I1168["point in state space"],# todo remove argument
@@ -604,7 +604,7 @@ with I6229["definition of Lie derivative of scalar field"].scope("setting") as c
     h_evaluated = h(phi)
 
     # TODO: __automate_typing__
-    h_evaluated.R30__is_secondary_instance_of = ma.p.I18["mathematical expression"]
+    h_evaluated.R30__is_secondary_instance_of = p.I18["mathematical expression"]
 
     # perform the derivative
     deriv_evaluated = ma.derivative(h_evaluated, t)
@@ -628,7 +628,7 @@ I1347["Lie derivative of scalar field"].set_relation(
 I1371 = p.create_item(
     R1__has_label="iterated Lie derivative of scalar field",
     R2__has_description="iterated version of I1347__Lie_derivative_of_scalar_field",
-    R3__is_subclass_of=ma.I4895["mathematical operator"],
+    R3__is_subclass_of=p.I9["mathematical operation with arity 3"],
     R8__has_domain_of_argument_1=ma.I9923["scalar field"],
     R9__has_domain_of_argument_2=ma.I9841["vector field"],
     R10__has_domain_of_argument_3=p.I38["non-negative integer"],

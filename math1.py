@@ -32,17 +32,6 @@ I5001 = p.create_item(
     R24__has_LaTeX_string="$1$",
 )
 
-# todo refactor this with p.I6
-I4895 = p.create_item(
-    R1__has_label="mathematical operator",
-    R2__has_description="general (unspecified) mathematical operator",
-    R3__is_subclass_of=p.I12["mathematical object"],
-)
-
-# make all instances of operators callable:
-I4895["mathematical operator"].add_method(p.create_evaluated_mapping, "_custom_call")
-
-
 I9904 = p.create_item(
     R1__has_label="matrix",
     R2__has_description="matrix of (in general) complex numbers, i.e. matrix over the field of complex numbers",
@@ -61,7 +50,7 @@ I3240 = p.create_item(
         "mathematical operation wich maps a Matrix A, and two integers i, j to the scalar matrix entry A[i, j]. "
         "Index counting starts at 1"
     ),
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I9["mathematical operation with arity 3"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R9__has_domain_of_argument_2=p.I39["positive integer"],
     R10__has_domain_of_argument_3=p.I39["positive integer"],
@@ -367,7 +356,7 @@ I8133 = p.create_item(
 I5005 = p.create_item(
     R1__has_label="real part",
     R2__has_description="returns the real part of a complex number",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=p.I34["complex number"],
     R11__has_range_of_result=p.I35["real number"],
 )
@@ -375,7 +364,7 @@ I5005 = p.create_item(
 I5006 = p.create_item(
     R1__has_label="imaginary part",
     R2__has_description="returns the imaginary part of a complex number",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=p.I34["complex number"],
     R11__has_range_of_result=p.I35["real number"],
 )
@@ -383,7 +372,7 @@ I5006 = p.create_item(
 I5807 = p.create_item(
     R1__has_label="sign",
     R2__has_description="returns the sign of a real number, i.e. on element of {-1, 0, 1}",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=p.I35["real number"],
     R11__has_range_of_result=p.I37["integer number"],
 )
@@ -461,7 +450,7 @@ I3237 = p.create_item(
 I5177 = p.create_item(
     R1__has_label="matmul",
     R2__has_description=("matrix multiplication operator"),
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I8["mathematical operation with arity 2"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R9__has_domain_of_argument_2=I9904["matrix"],
     R11__has_range_of_result=I9904["matrix"],
@@ -471,7 +460,7 @@ I5177 = p.create_item(
 I1474 = p.create_item(
     R1__has_label="matpow",
     R2__has_description=("power function for matrices like A**0 = I, A**1 = A, A**2 = A*A"),
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I8["mathematical operation with arity 2"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R9__has_domain_of_argument_2=p.I38["non-negative integer"],
     R11__has_range_of_result=I9904["matrix"],
@@ -480,7 +469,7 @@ I1474 = p.create_item(
 I9493 = p.create_item(
     R1__has_label="matadd",
     R2__has_description="matrix addition operator",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I8["mathematical operation with arity 2"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R9__has_domain_of_argument_2=I9904["matrix"],
     R11__has_range_of_result=I9904["matrix"],
@@ -489,7 +478,7 @@ I9493 = p.create_item(
 I1536 = p.create_item(
     R1__has_label="matneg",
     R2__has_description="negation operator for matrices",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R11__has_range_of_result=I9904["matrix"],
 )
@@ -497,7 +486,7 @@ I1536 = p.create_item(
 I3263 = p.create_item(
     R1__has_label="transpose",
     R2__has_description="matrix transposition operator",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R11__has_range_of_result=I9904["matrix"],
 )
@@ -578,7 +567,7 @@ I4237["monovariate rational function"].add_method(p.create_evaluated_mapping, "_
 I6209 = p.create_item(
     R1__has_label="scalneg",
     R2__has_description="negation operator for scalars",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=p.I42["scalar mathematical object"],
     R11__has_range_of_result=p.I42["scalar mathematical object"],
 )
@@ -687,7 +676,7 @@ R8736 = p.create_relation(
 I6324 = p.create_item(
     R1__has_label="canonical first order monic polynomial matrix",
     R2__has_description="for a given square matrix A returns the polynomial matrix (s·I - A)",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I8["mathematical operation with arity 2"],
     R8__has_domain_of_argument_1=I9906["square matrix"],
     R9__has_domain_of_argument_2=I5030["variable"],
     R11__has_range_of_result=I1935["polynomial matrix"],
@@ -716,7 +705,7 @@ I6324["canonical first order monic polynomial matrix"].add_method(I6324_cc_pp, "
 I5359 = p.create_item(
     R1__has_label="determinant",
     R2__has_description="returns the determinant of a square matrix",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9906["square matrix"],
     R11__has_range_of_result=p.I42["scalar mathematical object"],
 )
@@ -751,7 +740,7 @@ I5359["determinant"].add_method(I5359_cc_pp, "_custom_call_post_process")
 I9160 = p.create_item(
     R1__has_label="set of eigenvalues of a matrix",
     R2__has_description="returns the set of eigenvalues of a matrix",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9906["square matrix"],
     R11__has_range_of_result=I5484["finite set of complex numbers"],
 )
@@ -787,7 +776,7 @@ with I1373["definition of set of eigenvalues of a matrix"].scope("assertion") as
 I3058 = p.create_item(
     R1__has_label="coefficients of characteristic polynomial",
     R2__has_description="...",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9906["square matrix"],
     R11__has_range_of_result=I9739["finite scalar sequence"],
 )
@@ -887,7 +876,7 @@ with I3749["Cayley-Hamilton theorem"].scope("assertion") as cm:
 I7559 = p.create_item(
     R1__has_label="cardinality",
     R2__has_description="returns the cardinality of a set or multiset",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=p.I13["mathematical set"],  # TODO: introduce multiset
     R11__has_range_of_result=p.I38["non-negative integer"],
 )
@@ -896,7 +885,7 @@ I7559 = p.create_item(
 I3589 = p.create_item(
     R1__has_label="monovariate polynomial degree",
     R2__has_description="returns degree of a monovariate polynomial",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I4239["abstract monovariate polynomial"],
     R11__has_range_of_result=p.I38["non-negative integer"],
 )
@@ -990,7 +979,7 @@ I1168 = p.create_item(
 R9651 = p.create_relation(
     R1__has_label="has domain",
     R2__has_description="specifies that the subject (a function or operator) is defined for all values of the object (a set)",
-    R8__has_domain_of_argument_1=I4895["mathematical operator"],
+    R8__has_domain_of_argument_1=p.I6["mathematical operation"],
     R11__has_range_of_result=p.I13["mathematical set"],
     R22__is_functional=True,
 )
@@ -1008,7 +997,7 @@ R3798 = p.create_relation(
 I9923 = p.create_item(
     R1__has_label="scalar field",
     R2__has_description="...",
-    R3__is_subclass_of=I4895["mathematical operator"],
+    R3__is_subclass_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I1169["point in vector space"],
     R11__has_range_of_result=p.I35["real number"],
 )
@@ -1017,7 +1006,7 @@ I9923 = p.create_item(
 I9841 = p.create_item(
     R1__has_label="vector field",
     R2__has_description="...",
-    R3__is_subclass_of=I4895["mathematical operator"],
+    R3__is_subclass_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I1169["point in vector space"],
     R11__has_range_of_result=I7151["vector"],
 )
@@ -1231,7 +1220,7 @@ I5440["limits"].add_method(p.create_evaluated_mapping, "_custom_call")
 I5441 = p.create_item(
     R1__has_label="sum over index",
     R2__has_description="summation operator (capital Sigma). Args are: expression, index of summation variable, limits-tuple",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I9["mathematical operation with arity 3"],
     R8__has_domain_of_argument_1=p.I12["mathematical object"],
     R9__has_domain_of_argument_2=p.I12["mathematical object"], # running index
     R10__has_domain_of_argument_3=p.I33["tuple"],  # (start, stop) -tuple
@@ -1269,7 +1258,7 @@ I5444 = p.create_item(
 I9489 = p.create_item(
     R1__has_label="vector to matrix",
     R2__has_description="convert a vector item to a matrix item for calculus",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I7151["vector"],
     R11__has_range_of_result=I9904["matrix"],
     R18__has_usage_hint="Use this operator to convert to matrix, then use matmul, matadd etc.",
@@ -1305,7 +1294,7 @@ I9489["vector to matrix"].add_method(I9489_cc_pp, "_custom_call_post_process")
 I1284 = p.create_item(
     R1__has_label="point in vector space to vector",
     R2__has_description="convert a point in a vector space to the vector, pointing to that point",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I1169["point in vector space"],
     R11__has_range_of_result=I7151["vector"],
     R18__has_usage_hint="Use this operator to convert to vector/ matrix, then use matmul, matadd etc.",
@@ -1340,7 +1329,7 @@ I1284["point in vector space to vector"].add_method(I1284_cc_pp, "_custom_call_p
 I4218 = p.create_item(
     R1__has_label="matrix to vector",
     R2__has_description="convert a nx1 matrix item to a vector item for calculus",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R11__has_range_of_result=I7151["vector"],
 )
@@ -1348,7 +1337,7 @@ I4218 = p.create_item(
 I2328 = p.create_item(
     R1__has_label="matrix to scalar",
     R2__has_description="convert a 1x1 matrix item to a scalar value",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9904["matrix"],
     R11__has_range_of_result=I1063["scalar function"],
 )  # TODO build test
@@ -1356,7 +1345,7 @@ I2328 = p.create_item(
 I7481 = p.create_item(
     R1__has_label="Jacobian",
     R2__has_description="Jacobi matrix of a vector field, operator",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9841["vector field"],
     R11__has_range_of_result=I9906["square matrix"],
 )
@@ -1370,7 +1359,7 @@ I2378 = p.create_item(
 I9827 = p.create_item(
     R1__has_label="mathematical algorithm",
     R2__has_description="",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I6["mathematical operation"],
     # R8__has_domain_of_argument_1=??,
     R11__has_range_of_result=p.I53["bool"],  # if a solution exists or not
 )
@@ -1612,7 +1601,7 @@ R2495 = p.create_relation(
 I9148 = p.create_item(
     R1__has_label="get polygon sides ordered by length",
     R2__has_description="operator that returns a tuple of I8172__polygon_side instances",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I7280["planar polygon"],
     # TODO: find a way to specify this further (e.g. with qualifiers), because we know the type of the result
     # another idea: introduce a callable Item like I95["typed tuple"](I8172["polygon side"])
