@@ -97,12 +97,12 @@ class Test_02_math(unittest.TestCase):
             sum_item.get_arguments()[0].get_arguments(), [a.R2495__has_length, b.R2495__has_length]
         )
         self.assertEqual(sum_item.get_arguments()[1], c.R2495__has_length)
-        self.assertEqual(sum_item.R4__is_instance_of, ma.I6043["sum"])
+        self.assertEqual(sum_item.R4__is_instance_of, p.I12["mathematical object"])
 
         symbolic_prod = la * lb
         prod_item = ma.symbolic_expression_to_graph_expression(symbolic_prod)
         self.assertEqual(prod_item.get_arguments(), [a.R2495__has_length, b.R2495__has_length])
-        self.assertEqual(prod_item.R4__is_instance_of, ma.I5916["product"])
+        self.assertEqual(prod_item.R4__is_instance_of, p.I12["mathematical object"])
 
     # @unittest.expectedFailure
     def test_c04b_symbolic_formula2(self):

@@ -61,7 +61,7 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             self.assertEqual(res1.R36.R39[0].R35__is_applied_mapping_of, p.I56["mul"])
             self.assertEqual(res1.R36.R39[0].R36.R39[0], I1001["b"])
 
-    def test_q02__sp_to_irk_conversion2_sum_integral(self):
+    def test_q02__sp_to_irk_conversion2_advanced(self):
         with p.uri_context(uri=TEST_BASE_URI, prefix="ut"):
             # run with `pytest -s tests/test_quick.py`
             I2000 = p.create_item(R1__has_label="a", R4__is_instance_of=p.I35["real number"])
@@ -83,8 +83,16 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             res2 = self.ma.convert_sympy_to_irk(formula2)
 
             self.assertTrue(p.is_instance_of(res2, p.I12["mathematical object"]))
-            self.assertEqual(res2.R35__is_applied_mapping_of, self.ma.I5442["integral"])
-            self.assertEqual(res2, self.ma.I5442["integral"](p.I57["pow"](I2000, 2), I2000, self.ma.I5440["limits"](I2001, I2002)))
+            self.assertEqual(res2.R35__is_applied_mapping_of, self.ma.I5443["definite integral"])
+            self.assertEqual(res2, self.ma.I5443["definite integral"](p.I57["pow"](I2000, 2), I2000, self.ma.I5440["limits"](I2001, I2002)))
+
+            f3 = sp.Derivative(a*b, (a, 2))
+
+            res3 = self.ma.convert_sympy_to_irk(f3)
+            self.assertTrue(p.is_instance_of(res3, p.I12["mathematical object"]))
+            self.assertEqual(res3.R35__is_applied_mapping_of, self.ma.I3513["derivative"])
+            self.assertEqual(res3, self.ma.I3513["derivative"](p.I56["mul"](I2000, I2001), I2000, 2))
+
 
     def test_q03__sp_to_irk_conversion3_from_latex(self):
         from sympy.parsing.latex import parse_latex_lark
@@ -135,6 +143,12 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             )
             self.assertEqual(res, target)
 
+            latex = r"\frac{d}{dt}(1*f(t))"
+            formula1 = parse_latex_lark(latex)
+            res = self.ma.convert_latex_to_irk(formula1, item_list)
+            self.assertEqual(res.R35__is_applied_mapping_of, self.ma.I3513["derivative"])
+
+
     def test_q04__irk_to_sp_conversion1(self):
         with p.uri_context(uri=TEST_BASE_URI, prefix="ut"):
             I4000 = p.create_item(R1__has_label="s", R4__is_instance_of=p.I34["complex number"])
@@ -156,3 +170,13 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             target = F(s) + i**2*f(2) / (i-j)
             # only test subpart since F and f have different symbols
             self.assertEqual(res.args[0].args[1:], target.args[0].args[1:])
+
+            expr2 = self.ma.I5444["indefinite integral"](I4000["s"]**2, I4000["s"])
+            res2 = self.ma.convert_irk_to_sympy(expr2)
+            target = sp.Integral(s**2, s)
+            self.assertEqual(res2, target)
+
+            expr3 = self.ma.derivative(I4000["s"]**3, I4000["s"], 2)
+            res3 = self.ma.convert_irk_to_sympy(expr3)
+            target = sp.Derivative(s**3, (s, 2))
+            self.assertEqual(res3, target)

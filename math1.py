@@ -32,7 +32,7 @@ I5001 = p.create_item(
     R24__has_LaTeX_string="$1$",
 )
 
-
+# todo refactor this with p.I6
 I4895 = p.create_item(
     R1__has_label="mathematical operator",
     R2__has_description="general (unspecified) mathematical operator",
@@ -1241,12 +1241,28 @@ I5441 = p.create_item(
 )
 
 I5442 = p.create_item(
-    R1__has_label="integral",
+    R1__has_label="general integral",
+    R2__has_description="general integral operator ∫. parent class for definite and indefinite integral",
+    R3__is_subclass_of=p.I6["mathematical operation"],
+    R18__has_usage_hint="do not use this in equations, use definite and indefinite integral instead"
+)
+
+I5443 = p.create_item(
+    R1__has_label="definite integral",
     R2__has_description="integral operator ∫. Args are: expression, integration variable, limits-tuple",
-    R4__is_instance_of=I4895["mathematical operator"],
+    R4__is_instance_of=I5442["general integral"],
     R8__has_domain_of_argument_1=p.I12["mathematical object"],
     R9__has_domain_of_argument_2=p.I12["mathematical object"], # integration variable
     R10__has_domain_of_argument_3=p.I33["tuple"],  # (start, stop) -tuple
+    R11__has_range_of_result=p.I18["mathematical expression"],
+)
+
+I5444 = p.create_item(
+    R1__has_label="indefinite integral",
+    R2__has_description="integral operator ∫. Args are: expression, integration variable, limits-tuple",
+    R4__is_instance_of=I5442["general integral"],
+    R8__has_domain_of_argument_1=p.I12["mathematical object"],
+    R9__has_domain_of_argument_2=p.I12["mathematical object"], # integration variable
     R11__has_range_of_result=p.I18["mathematical expression"],
 )
 
@@ -1370,28 +1386,26 @@ I9827["mathematical algorithm"].set_relation(
     R3263["has solution"], I2378["solution to a mathematical algorithm"]
 )
 
-
-# items to specify components of formulas
-
-
-I2495 = p.create_item(
-    R1__has_label="add",
-    R2__has_description="general addition operator",
-    R4__is_instance_of=I4895["mathematical operator"],
-    R8__has_domain_of_argument_1=p.I18["mathematical expression"],
-    R9__has_domain_of_argument_2=p.I18["mathematical expression"],
-    R11__has_range_of_result=I6043["sum"],
+I4122 = p.create_item(
+    R1__has_label="independent variable",
+    R2__has_description="type for an independent variable",
+    R3__is_subclass_of=p.I18["mathematical expression"],
 )
 
-I9738 = p.create_item(
-    R1__has_label="mul",
-    R2__has_description="general multiplication operator",
-    R4__is_instance_of=I4895["mathematical operator"],
-    R8__has_domain_of_argument_1=p.I18["mathematical expression"],
-    R9__has_domain_of_argument_2=p.I18["mathematical expression"],
-    R11__has_range_of_result=I5916["product"],
+I3513 = p.create_item(
+    R1__has_label="derivative",
+    R2__has_description="operator yielding the i-th derivative of an expression w.r.t. a variable",
+    R4__is_instance_of=p.I9["mathematical operation with arity 3"],
+    R8__has_domain_of_argument_1=p.I12["mathematical object"],
+    R9__has_domain_of_argument_2=[I4122["independent variable"], p.I12["mathematical object"]],
+    R10__has_domain_of_argument_3=p.I37["integer number"],
+    R11__has_range_of_result=p.I18["mathematical expression"],
+    R13__has_canonical_symbol=r"$\frac{d^i}{d(\cdot_2)^i} (\cdot_1)$",
 )
 
+def derivative(expr, variable, order=1):
+    """return the evaluated mapping of the derivative operator"""
+    return I3513["derivative"](expr, variable, order)
 
 class SymbolConversionError(p.aux.PyIRKException):
     pass
@@ -1522,7 +1536,7 @@ class symbolicExpressionToGraphExpressionConverter:
         if any(is_matrix_list):
             operator = I9493["matadd"]
         else:
-            operator = I2495["add"]
+            operator = p.I55["add"]
         return self._apply_operator(args, operator)
 
     def _conv_mul(self, args):
@@ -1531,7 +1545,7 @@ class symbolicExpressionToGraphExpressionConverter:
             operator = I5177["matmul"]
         else:
             # normal multiplication
-            operator = I9738["mul"]
+            operator = p.I56["mul"]
 
         return self._apply_operator(args, operator)
 
@@ -1773,30 +1787,33 @@ P.set_relation(R5939["has column number"], 5)
 
 failed_multiplication = I5177["matmul"](A, P)
 
+def flatten(xss):
+    return [x for xs in xss for x in xs]
 
-sp_to_irk_map = p.aux.OneToOneMapping(
-    a_dict={
-        # in theory for the 1to1 mapping it would be nice to have I55["add"] on the right hand side
-        # but that currently fails in the cosistency checker, since the item I55 can only have ==2 args, but the
-        # add_items function can take an arbitrary amount
-        sp.Add: p.add_items,
-        sp.Mul: p.mul_items,
-        sp.Pow: p.pow_items,
-        sp.Sum: I5441["sum over index"],
-        sp.Integral: I5442["integral"],
-        sp.Tuple: lambda *args: tuple(args),
-    }
-)
+# in theory for the 1to1 mapping it would be nice to have I55["add"] on the right hand side
+# but that currently fails in the cosistency checker, since the item I55 can only have ==2 args, but the
+# add_items function can take an arbitrary amount
+sp_to_irk_map = {
+    sp.Add: p.add_items,
+    sp.Mul: p.mul_items,
+    sp.Pow: p.pow_items,
+    sp.Sum: I5441["sum over index"],
+    sp.Integral: I5442["general integral"],
+    sp.Tuple: lambda *args: tuple(args),
+    sp.Derivative: lambda *args: derivative(args[0], *args[1])
+}
 
-irk_to_sp_map = p.aux.OneToOneMapping(
-    a_dict={
-        p.I55["add"]: sp.Add,
-        p.I56["mul"]: sp.Mul,
-        p.I57["pow"]: sp.Pow,
-        I5441["sum over index"]: sp.Sum,
-        I5442["integral"]: sp.Integral,
-    }
-)
+
+# definite and indefinite integral map to the same sp.Integral -> 1to1 mapping unfeasable
+irk_to_sp_map = {
+    p.I55["add"]: sp.Add,
+    p.I56["mul"]: sp.Mul,
+    p.I57["pow"]: sp.Pow,
+    I5441["sum over index"]: sp.Sum,
+    I5443["definite integral"]: sp.Integral,
+    I5444["indefinite integral"]: sp.Integral,
+    I3513["derivative"]: sp.Derivative,
+}
 
 # todo maybe these two can be merged
 
@@ -1839,7 +1856,15 @@ def convert_latex_to_irk(sp_expr, lookup):
         for item in lookup:
             # todo this name compare is potentially dangerous
             if atom.name == item.R1:
-                item_symbol_map.add_pair(item.uri, atom)
+                # check if item or symbol already exist in dict
+                if item.uri in item_symbol_map.a.keys() or atom in item_symbol_map.b.keys():
+                    old_atom = item_symbol_map.a[item.uri]
+                    old_uri = item_symbol_map.b[atom]
+                    msg = f"new (uri, symbol) pair {item.uri, atom} in collision with existing pair {old_uri, old_atom}"
+                    assert old_atom == atom, msg
+                    assert old_uri == item.uri, msg
+                else:
+                    item_symbol_map.add_pair(item.uri, atom)
                 break
         else:
             raise ValueError(f"no item found for {atom}")
@@ -1872,15 +1897,26 @@ def convert_sympy_to_irk(sp_expr):
         # callable generic function e.g. add
         else:
             sp_type = type(sp_expr)
-            irk_type = sp_to_irk_map.a.get(sp_type)
-
-            if irk_type is None:
+            try:
+                irk_type = sp_to_irk_map[sp_type]
+            except KeyError:
                 msg = f"For {sp_type} there is no IRK-type defined yet"
                 raise NotImplementedError(msg)
-            elif sp_type == sp.Sum or sp_type == sp.Integral:
+
+            if sp_type == sp.Sum:
                 # sympy syntax: sp.Sum(expr, (index_var, start, stop))
-                # sympy syntax: sp.Integral(expr, (index_var, start, stop))
                 args = (args[0], args[1][0], I5440["limits"](*args[1][1:]))
+            elif sp_type == sp.Integral:
+                # sympy syntax: sp.Integral(expr, (index_var, start, stop))
+                # limits are specified
+                if len(args[1]) > 1:
+                    args = (args[0], args[1][0], I5440["limits"](*args[1][1:]))
+                    irk_type = I5443["definite integral"]
+                # no limits are given
+                else:
+                    args = (args[0], args[1][0])
+                    irk_type = I5444["indefinite integral"]
+
 
             return irk_type(*args)
 
@@ -1897,15 +1933,12 @@ def convert_irk_to_sympy(irk_expr):
         if isinstance(irk_expr, (int, float, complex)):
             return irk_expr
         # Functions
-        # elif p.is_instance_of(irk_expr, p.I6["mathematical operation"]):
         elif len(args) > 0:
             # if there are arguments, this node must be callable
-            sp_type = irk_to_sp_map.a.get(irk_expr.R35)
-            if sp_type is None:
+            try:
+                sp_type = irk_to_sp_map[irk_expr.R35]
+            except KeyError:
                 # assume its a custom operator
-                # if "item_symbol_map" in ds.keys() and irk_expr.uri in ds["item_symbol_map"].a.keys():
-                #     sp_type = ds["item_symbol_map"].a[irk_expr.uri]
-                # else:
                 sp_type = items_to_symbols(irk_expr, callable=True)
 
             return sp_type(*args)
@@ -1916,11 +1949,7 @@ def convert_irk_to_sympy(irk_expr):
             return 1
         # all other symbols
         else:
-            # look if symbol was already created
-            # if "item_symbol_map" in ds.keys() and irk_expr.uri in ds["item_symbol_map"].a.keys():
-            #     s = ds["item_symbol_map"].a[irk_expr.uri]
-            # else:
-            s = items_to_symbols(irk_expr) #todo whats up with the relations argument?
+            s = items_to_symbols(irk_expr) # todo whats up with the relations argument?
             return s
 
     def _get_args_for_irk(irk_expr):

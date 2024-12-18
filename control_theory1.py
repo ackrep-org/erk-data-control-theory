@@ -529,22 +529,6 @@ I2753 = p.create_item(
 )
 # TODO: find a way to assign labels to the arguments: "initial value x", "time t", "vector field f"
 
-I4122 = p.create_item(
-    R1__has_label="independent variable",
-    R2__has_description="type for an independent variable",
-    R3__is_subclass_of=p.I18["mathematical expression"],
-)
-
-
-I3513 = p.create_item(
-    R1__has_label="derivative w.r.t. scalar parameter",
-    R2__has_description="operator yielding the derivative of an expression w.r.t. a parameter",
-    R4__is_instance_of=ma.I4895["mathematical operator"],
-    R8__has_domain_of_argument_1=p.I18["mathematical expression"],
-    R9__has_domain_of_argument_2=I4122["independent variable"],
-    R11__has_range_of_result=p.I18["mathematical expression"],
-    R13__has_canonical_symbol=r"$\frac{d}{d(\cdot_2}) (\cdot_1)$",
-)
 
 I2075 = p.create_item(
     R1__has_label="substitution",
@@ -609,7 +593,7 @@ with I6229["definition of Lie derivative of scalar field"].scope("setting") as c
 
     cm.new_rel(cm.x, p.R15["is element of"], M)
 
-    t = cm.new_var(t=p.instance_of(I4122["independent variable"]))
+    t = cm.new_var(t=p.instance_of(ma.I4122["independent variable"]))
 
     # TODO: __automate_typing__
     t.R30__is_secondary_instance_of = p.I35["real number"]
@@ -623,7 +607,7 @@ with I6229["definition of Lie derivative of scalar field"].scope("setting") as c
     h_evaluated.R30__is_secondary_instance_of = ma.p.I18["mathematical expression"]
 
     # perform the derivative
-    deriv_evaluated = I3513["derivative w.r.t. scalar parameter"](h_evaluated, t)
+    deriv_evaluated = ma.derivative(h_evaluated, t)
 
     # some auxiliary expressions are stored as attributes of the parent item of the cm
 
