@@ -180,3 +180,29 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             res3 = self.ma.convert_irk_to_sympy(expr3)
             target = sp.Derivative(s**3, (s, 2))
             self.assertEqual(res3, target)
+
+    @unittest.expectedFailure
+    def test_q05__call_of_evaluted_mappings(self):
+        with p.uri_context(uri=TEST_BASE_URI, prefix="ut"):
+            # some mathematical function
+            I4000 = p.create_item(R1__has_label="f",
+                R4__is_instance_of=p.I7["mathematical operation with arity 1"],
+                R8__has_domain_of_argument_1=p.I35["real number"],
+                R11__has_range_of_result=p.I35["real number"])
+            # some variables
+            I4001 = p.create_item(R1__has_label="x", R4__is_instance_of=p.I35["real number"])
+            I4002 = p.create_item(R1__has_label="t", R4__is_instance_of=p.I35["real number"])
+
+            # derivative of a function that should return a callable
+            deriv = self.ma.derivative(I4000["f"](I4001["x"]), I4001["x"])
+            # evaluate the derivative
+            deriv(0)
+
+            # derivative of a constant should not be callable
+            res = self.ma.derivative(1, I4001["x"])
+            self.assertRaises(TypeError, res, 0)
+
+            # integral of a function that should return a callable
+            # integral = self.ma.I5444["indefinie integral"](I4000["f"](I4001["x"]), (I4001["x"]), self.ma.I5440["limits"](0, I4002["t"]))
+            # eval
+            # integral(0)
