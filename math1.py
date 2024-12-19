@@ -1,6 +1,16 @@
 from typing import Union
 import pyirk as p
 import sympy as sp
+from sympy.parsing.latex import parse_latex_lark
+from sympy.external import import_module
+from sympy.parsing.latex.errors import LaTeXParsingError
+
+lark = import_module("lark")
+if lark:
+    from lark import Transformer, Token, Tree
+else:
+    print("lark parser not found!")
+
 
 # noinspection PyUnresolvedReferences
 from ipydex import IPS, activate_ips_on_exception  # noqa
@@ -1826,7 +1836,14 @@ def number_type_convert(n):
     else:
         return n
 
-def convert_latex_to_irk(sp_expr, lookup):
+def convert_latex_to_irk(latex, lookup):
+    # 0. convert to sympy
+    sp_expr = parse_latex_lark(latex)
+    # ambiguous result
+    if isinstance(sp_expr, Tree):
+        sp_expr = sp_expr.children[0]
+        print(f"Warning: lark result not unique, using first option: {sp_expr} for {latex}")
+
     # 1. identify smybols and function in expr
     sp_atoms = []
     # symbols (and numbers, will get rid of later)

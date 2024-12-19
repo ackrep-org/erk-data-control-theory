@@ -112,8 +112,8 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             I3006 = p.create_item(R1__has_label="t", R4__is_instance_of=p.I35["real number"])
             item_list = [I3000, I3001, I3002, I3003, I3004, I3005, I3006]
             latex = r"s^i * F(s) - \sum\limits_{j=0}^{i-1}(s^{i-1-j} * f(t)^{j})"
-            formula1 = parse_latex_lark(latex)
-            res = self.ma.convert_latex_to_irk(formula1, item_list)
+            # formula1 = parse_latex_lark(latex)
+            res = self.ma.convert_latex_to_irk(latex, item_list)
             target = p.I55["add"](
                 p.I56["mul"](
                     -1,
@@ -144,8 +144,8 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             self.assertEqual(res, target)
 
             latex = r"\frac{d}{dt}(1*f(t))"
-            formula1 = parse_latex_lark(latex)
-            res = self.ma.convert_latex_to_irk(formula1, item_list)
+            # formula1 = parse_latex_lark(latex)
+            res = self.ma.convert_latex_to_irk(latex, item_list)
             self.assertEqual(res.R35__is_applied_mapping_of, self.ma.I3513["derivative"])
 
 
