@@ -1836,7 +1836,8 @@ def number_type_convert(n):
     else:
         return n
 
-def convert_latex_to_irk(latex, lookup):
+# todo this doesnt work for stafo, since during this conversion, no items exist yet.
+def convert_latex_to_irk(latex, item_lookup):
     # 0. convert to sympy
     sp_expr = parse_latex_lark(latex)
     # ambiguous result
@@ -1859,7 +1860,7 @@ def convert_latex_to_irk(latex, lookup):
     for atom in sp_atoms:
         if isinstance(atom, sp.Number):
             continue
-        for item in lookup:
+        for item in item_lookup:
             # todo this name compare is potentially dangerous
             if atom.name == item.R1:
                 # check if item or symbol already exist in dict
