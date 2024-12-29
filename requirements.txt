@@ -1,5 +1,6 @@
 pyirk >=0.12.0
 sympy
+lark
 
 
 # dependencies which are important to run the unittests (but not for the package itself)
