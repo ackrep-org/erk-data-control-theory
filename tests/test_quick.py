@@ -181,7 +181,6 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             target = sp.Derivative(s**3, (s, 2))
             self.assertEqual(res3, target)
 
-    @unittest.expectedFailure
     def test_q05__call_of_evaluted_mappings(self):
         with p.uri_context(uri=TEST_BASE_URI, prefix="ut"):
             # some mathematical function
@@ -193,16 +192,20 @@ class Test_02_math(GeneralHousekeeperMixin, unittest.TestCase):
             I4001 = p.create_item(R1__has_label="x", R4__is_instance_of=p.I35["real number"])
             I4002 = p.create_item(R1__has_label="t", R4__is_instance_of=p.I35["real number"])
 
-            # derivative of a function that should return a callable
+            # derivative should return a callable
             deriv = self.ma.derivative(I4000["f"](I4001["x"]), I4001["x"])
             # evaluate the derivative
-            deriv(0)
-
-            # derivative of a constant should not be callable
-            res = self.ma.derivative(1, I4001["x"])
-            self.assertRaises(TypeError, res, 0)
+            ev1 = deriv(0)
+            self.assertEqual(ev1.R35.R35, self.ma.I3513["derivative"])
 
             # integral of a function that should return a callable
-            # integral = self.ma.I5444["indefinie integral"](I4000["f"](I4001["x"]), (I4001["x"]), self.ma.I5440["limits"](0, I4002["t"]))
+            integral = self.ma.integral(I4000["f"](I4001["x"]), I4001["x"], self.ma.I5440["limits"](0, I4002["t"]))
             # eval
-            # integral(0)
+            ev2 = integral(0)
+            self.assertEqual(ev2.R35.R35, self.ma.I5443["definite integral"])
+
+            # integral of a function that should return a callable
+            integral2 = self.ma.integral(I4000["f"](I4001["x"]), I4001["x"], (0, I4002["t"]))
+            # eval
+            ev3 = integral2(0)
+            self.assertEqual(ev3.R35.R35, self.ma.I5443["definite integral"])

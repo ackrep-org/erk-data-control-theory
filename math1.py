@@ -1220,7 +1220,7 @@ I5916 = p.create_item(
 I5440 = p.create_item(
     R1__has_label="limits",
     R2__has_description="tuple for limits in sums, integrals, etc",
-    R3__is_subclass_of=p.I1["general item"], # todo what is a good superclass here? Imo this is not a math operator
+    R4__is_instance_of=p.I2["Metaclass"], # todo what is a good superclass here? Imo this is not a math operator
     R8__has_domain_of_argument_1=[p.I12["mathematical object"], p.I35["real number"], I4864["infinity class"]],
     R9__has_domain_of_argument_2=[p.I12["mathematical object"], p.I35["real number"], I4864["infinity class"]], # todo with this you cant integrate from -infty to infty
     R11__has_range_of_result=p.I33["tuple"],
@@ -1241,7 +1241,7 @@ I5441 = p.create_item(
 
 I5442 = p.create_item(
     R1__has_label="general integral",
-    R2__has_description="general integral operator ∫. parent class for definite and indefinite integral",
+    R2__has_description="abstract integral operator ∫. parent class for definite and indefinite integral",
     R3__is_subclass_of=p.I6["mathematical operation"],
     R18__has_usage_hint="do not use this in equations, use definite and indefinite integral instead"
 )
@@ -1264,6 +1264,18 @@ I5444 = p.create_item(
     R9__has_domain_of_argument_2=p.I12["mathematical object"], # integration variable
     R11__has_range_of_result=p.I18["mathematical expression"],
 )
+
+def integral(integrand, integration_var, limits: tuple=None):
+    if limits is None:
+        integral = I5444["indefinite integral"](integrand, integration_var)
+    else:
+        if isinstance(limits, p.Item) and p.is_instance_of(limits, I5440["limits"].R11[0]):
+            integral = I5443["definite integral"](integrand, integration_var, limits)
+        else:
+            assert len(limits) == 2, f"limits {limits} need exactly two entries"
+            integral = I5443["definite integral"](integrand, integration_var, I5440["limits"](*limits))
+    integral.add_method(p.create_evaluated_mapping, "_custom_call")
+    return integral
 
 I9489 = p.create_item(
     R1__has_label="vector to matrix",
@@ -1404,7 +1416,9 @@ I3513 = p.create_item(
 
 def derivative(expr, variable, order=1):
     """return the evaluated mapping of the derivative operator"""
-    return I3513["derivative"](expr, variable, order)
+    item = I3513["derivative"](expr, variable, order)
+    item.add_method(p.create_evaluated_mapping, "_custom_call")
+    return item
 
 class SymbolConversionError(p.aux.PyIRKException):
     pass
