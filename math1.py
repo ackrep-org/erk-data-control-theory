@@ -353,16 +353,6 @@ I8133 = p.create_item(
     R3__is_subclass_of=p.I13["mathematical set"],
 )
 
-# R3033 = p.create_relation(
-#     R1__has_label="has type of elements",
-#     R2__has_description=(
-#         "specifies the item-type of the elements of a mathematical set; "
-#         "should be a subclass of I12['mathematical object']"
-#     ),
-#     R8__has_domain_of_argument_1=p.I13["mathematical set"],
-#     R11__has_range_of_result=p.I42["mathematical type (metaclass)"],
-# )
-
 I5005 = p.create_item(
     R1__has_label="real part",
     R2__has_description="returns the real part of a complex number",
@@ -563,7 +553,7 @@ I1063 = p.create_item(
     R1__has_label="scalar function",
     R2__has_description="function that has one (in general complex) number as result",
     R3__is_subclass_of=I1060["general function"],
-    R46__is_secondary_subclass_of=p.I42["scalar mathematical object"],
+    R46__is_secondary_subclass_of=p.I42["scalar mathematical expression"],
 )
 
 I4237 = p.create_item(
@@ -577,9 +567,9 @@ I4237["monovariate rational function"].add_method(p.create_evaluated_mapping, "_
 I6209 = p.create_item(
     R1__has_label="scalneg",
     R2__has_description="negation operator for scalars",
-    R4__is_instance_of=p.I7["mathematical operation with arity 1"],
-    R8__has_domain_of_argument_1=p.I42["scalar mathematical object"],
-    R11__has_range_of_result=p.I42["scalar mathematical object"],
+    R4__is_instance_of=p.I63["abstract negation class"],
+    R8__has_domain_of_argument_1=p.I42["scalar mathematical expression"],
+    R11__has_range_of_result=p.I42["scalar mathematical expression"],
 )
 
 I4239 = p.create_item(
@@ -717,7 +707,7 @@ I5359 = p.create_item(
     R2__has_description="returns the determinant of a square matrix",
     R4__is_instance_of=p.I7["mathematical operation with arity 1"],
     R8__has_domain_of_argument_1=I9906["square matrix"],
-    R11__has_range_of_result=p.I42["scalar mathematical object"],
+    R11__has_range_of_result=p.I42["scalar mathematical expression"],
 )
 
 

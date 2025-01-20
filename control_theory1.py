@@ -234,15 +234,17 @@ I2640 = p.create_item(
     R4__is_instance_of=p.I2["Metaclass"],
 )
 
-
-p.R37["has definition"].set_relation(p.R8["has domain of argument 1"], p.I12["mathematical object"])
-
+I5600 = p.create_item(
+    R1__has_label="denominator",
+    R2__has_description="denominator of some scalar mathematical term",
+    R3__is_subclass_of=p.I42["scalar mathematical expression"]
+)
 
 R5323 = p.create_relation(
     R1__has_label="has denominator",
     R2__has_description="...",
-    R8__has_domain_of_argument_1=ma.I4237["monovariate rational function"],
-    R11__has_range_of_result=ma.I4239["abstract monovariate polynomial"],
+    R8__has_domain_of_argument_1=p.I42["scalar mathematical expression"],
+    R11__has_range_of_result=p.I42["scalar mathematical expression"],
 )
 
 
@@ -2159,7 +2161,7 @@ with I5073.scope("assertion") as cm:
 """
 
 
-I5600      R5600
+      R5600
 I8026      R8026
 I5536      R5536
 I4703      R4703
