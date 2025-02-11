@@ -323,10 +323,16 @@ I2562 = p.create_item(
     R3__is_subclass_of=I1793["general model representation property"],
 )
 
+I6197 = p.create_item(
+    R1__has_label="differential equation",
+    R2__has_description="type of mathematical equation that involves derivatives",
+    R3__is_subclass_of=p.I12["mathematical object"],
+)
+
 I8063 = p.create_item(
     R1__has_label="partial differential equation",
-    R2__has_description="explicit partial differential equation",
-    R3__is_subclass_of=I2928["general model representation"],
+    R2__has_description="differential equation which contains derivatives w.r.t. more than one independent variable",
+    R3__is_subclass_of=I6197["differential equation"],
 )
 
 R5718 = p.create_relation(
@@ -1325,19 +1331,6 @@ I2108 = p.create_item(
     R1__has_label="noise", R2__has_description="stochastic signal", R4__is_instance_of=p.I50["stub"]
 )
 
-
-I6197 = p.create_item(
-    R1__has_label="differential equation",
-    R2__has_description="type of mathematical equation that involves derivatives",
-    R3__is_subclass_of=p.I12["mathematical object"],
-)
-
-
-I3123 = p.create_item(
-    R1__has_label="partial differential equation",
-    R2__has_description="differential equation which contains derivatives w.r.t. more than one independent variable",
-    R3__is_subclass_of=I6197["differential equation"],
-)
 
 
 I1462 = p.create_item(
